@@ -1,78 +1,124 @@
 # lean-proof-skills
 
-## 项目定位 / Project Purpose
+Language: **English** | [中文](README.zh-CN.md)
 
-本仓库用于沉淀可复用的 Lean4 证明技能包。目标是让后续项目在需要形式化数学证明时，直接 clone 本仓库并在 Codex 中显式调用技能使用。  
-This repository provides a reusable Lean4 proof skill pack. The goal is to let future projects clone this repo and explicitly invoke skills in Codex for formal math proving tasks.
+## Position in the 3-Repo Framework
 
-## 仓库结构 / Repository Structure
+This repository is the upstream **skillpack** for Lean + Codex formal proving.
+Do not use this repository as the paper workspace itself.
+Instead, mount it into a paper project repository via:
 
-```text
-.agents/skills/
-├── lean4/
-│   ├── SKILL.md
-│   └── references/
-└── ml-paper-workflow/
-    ├── SKILL.md
-    └── agents/openai.yaml
-```
+- submodule at `.agents/skillpacks/lean-proof-skills`
+- facade symlinks under `.agents/skills/`
 
-`lean4` 是底层 Lean4 proving 引擎；`ml-paper-workflow` 是上层论文任务卡编排层。  
-`lean4` is the base Lean4 proving engine; `ml-paper-workflow` is the upper workflow wrapper for paper/task-card driven formalization.
+## Three-Repo Roles and Interfaces
 
-## Skills 说明 / Skills
+Use placeholder names until real repos are finalized:
 
-- `$lean4`: 直接处理 Lean 证明与修复循环（目标查看、mathlib 搜索、证明构造、构建验证）。
-- `$ml-paper-workflow`: 将论文蓝图或任务卡转为证明步骤，并显式委托 `$lean4` 执行正式 proving cycle。
+- `<ORG>/<LEAN-PROOF-SKILLS-REPO>`: reusable Codex skills (`$lean4`, `$ml-paper-workflow`)
+- `<ORG>/<MLTHEORY-LEAN-REPO>`: shared Lean theorem library for ML/OR domains
+- `<ORG>/<LEAN-PAPER-TEMPLATE-REPO>`: project template used to bootstrap each paper repo
 
-- `$lean4`: Use this skill for direct Lean proof development and repair cycles.
-- `$ml-paper-workflow`: Use this wrapper to drive proving from paper blueprints/task cards and explicitly delegate formal proving to `$lean4`.
+This repository only owns:
 
-## 快速开始 / Quick Start
+- reusable skills
+- skill IDs and invocation contracts
+- integration instructions for paper repositories
 
-1. 克隆仓库并进入目录。  
-   Clone the repository and enter it.
-   ```bash
-   git clone <your-repo-url>
-   cd lean-proof-skills
-   ```
-2. 在 Codex 中把工作目录设为仓库根目录，并显式调用技能。  
-   In Codex, set the working directory to the repository root and invoke skills explicitly.
-3. 优先流程：先用 `$ml-paper-workflow` 组织任务，再由 `$lean4` 执行证明。  
-   Preferred flow: use `$ml-paper-workflow` for task orchestration, then let `$lean4` run proving.
+## Skill IDs and Invocation Contract
 
-## 使用示例 / Prompt Examples
+- `$lean4`: base proving engine; implicit invocation is allowed.
+- `$ml-paper-workflow`: orchestration wrapper; explicit invocation preferred.
+
+## Required Layout in a Paper Repository
 
 ```text
-Use $ml-paper-workflow to formalize this measure-theory lemma from my task card.
-Keep theorem statements unchanged, produce minimal patch, and finish with lake build validation.
+paper-foo/
+├── .agents/
+│   ├── skillpacks/
+│   │   └── lean-proof-skills/              # git submodule
+│   └── skills/
+│       ├── lean4 -> ../skillpacks/lean-proof-skills/.agents/skills/lean4
+│       └── ml-paper-workflow -> ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow
+├── .codex/
+│   └── config.toml                          # project-level Codex config
+└── lakefile.toml
 ```
 
-```text
-Use $lean4 to solve the current sorry in this .lean file.
-Search mathlib first, avoid new axioms, and stop after a verified compile pass.
+Codex scans repo-scoped `.agents/skills` and follows symlinks, so the facade directory is the integration entrypoint.
+
+## Assembly Steps (in a Paper Repository)
+
+### 1) Add this repo as submodule
+
+```bash
+git submodule add https://github.com/<ORG>/<LEAN-PROOF-SKILLS-REPO>.git .agents/skillpacks/lean-proof-skills
+git submodule update --init --recursive
 ```
 
-## 边界与约束 / Boundaries and Constraints
+### 2) Create facade links in `.agents/skills`
 
-- 仅用于 Lean 证明任务（`.lean` 文件）；非证明或非 Lean 任务应拒绝或回退。
-- `ml-paper-workflow` 是编排层，不替代 `lean4` 的底层证明能力。
-- 默认坚持最小改动（minimal patch），避免与当前任务无关的大范围重构。
-- Skills 必须 repo-local 使用，不依赖仓库外 skill 目录。
+#### macOS / Linux
 
-- Lean-only proof scope (`.lean` files); non-proof/non-Lean tasks should be rejected or handed back.
-- `ml-paper-workflow` is orchestration only and does not replace `$lean4`.
-- Prefer minimal patches and avoid broad unrelated refactors.
-- Skills must remain repo-local and not depend on external skill directories.
+```bash
+mkdir -p .agents/skills
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/lean4 .agents/skills/lean4
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow .agents/skills/ml-paper-workflow
+```
 
-## 验收标准 / Acceptance Criteria
+#### Windows PowerShell
 
-- `lake build` 通过（或先通过文件级 gate，再通过项目级 gate）。
-- 不引入未授权公理（no unauthorized axioms）。
-- 在约定范围内清除 `sorry`，且不擅自改动 theorem/lemma statement。
-- 输出包含：变更内容、未解决阻塞、下一步任务卡。
+```powershell
+New-Item -ItemType Directory -Force -Path .agents/skills | Out-Null
+New-Item -ItemType SymbolicLink -Path .agents/skills/lean4 -Target ../skillpacks/lean-proof-skills/.agents/skills/lean4
+New-Item -ItemType SymbolicLink -Path .agents/skills/ml-paper-workflow -Target ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow
+```
 
-- `lake build` passes (or file-level gate first, then project-level gate).
-- No unauthorized axioms are introduced.
-- Sorries are resolved within agreed scope without silent statement changes.
-- Output reports what changed, blockers, and the next task card.
+Windows symlink creation usually requires Developer Mode enabled or elevated privileges.
+
+#### Git Bash (Windows)
+
+```bash
+mkdir -p .agents/skills
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/lean4 .agents/skills/lean4
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow .agents/skills/ml-paper-workflow
+```
+
+### 3) Configure Codex at project scope
+
+Create or edit `.codex/config.toml` in the **paper repository**, not in this skillpack repository.
+Put MCP settings (for example `lean-lsp-mcp`) there so configuration stays project-local.
+
+### 4) Verify skill visibility
+
+Start Codex from paper repo root and verify:
+
+- `/skills` lists `lean4` and `ml-paper-workflow`, or
+- typing `$` shows those skill chips
+
+## Upgrade and Rollback (paper repo side)
+
+### Upgrade to a newer skillpack commit/tag
+
+```bash
+git submodule update --init --recursive
+cd .agents/skillpacks/lean-proof-skills
+git fetch --tags origin
+git checkout <target-commit-or-tag>
+cd ../../..
+git add .agents/skillpacks/lean-proof-skills
+git commit -m "chore: bump lean-proof-skills submodule"
+```
+
+### Rollback to a previous submodule pointer
+
+```bash
+git checkout <older-paper-repo-commit> -- .agents/skillpacks/lean-proof-skills
+git commit -m "chore: rollback lean-proof-skills submodule"
+```
+
+## Boundaries
+
+- This repo is a skillpack upstream, not a proof project workspace.
+- Keep skills repo-local in each paper repository; avoid global skill pollution.
+- Keep proving output gated by Lean checks (`lake build`, agreed scope, no unauthorized axioms).
