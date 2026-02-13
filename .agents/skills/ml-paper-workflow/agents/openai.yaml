@@ -1,0 +1,13 @@
+interface:
+  display_name: "ML Paper Workflow"
+  short_description: "Lean paper-to-proof workflow wrapper over $lean4"
+  default_prompt: "Use $ml-paper-workflow to formalize this paper task card in Lean and delegate proof cycles to $lean4."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "lean-lsp-mcp"
+      description: "Lean LSP MCP server"
+
+policy:
+  allow_implicit_invocation: false
