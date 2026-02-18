@@ -1,6 +1,6 @@
 ---
 name: ml-paper-workflow
-description: "Strict construction wrapper for Lean paper task cards. Enforce Snapshot -> Retrieval -> Screening -> Minimal Patch -> Gate -> Artifact update using lean-lsp-mcp and $lean4."
+description: "Strict MLTheory wrapper: Intake v2 two-phase commit + Lean proof workflow with hard gates."
 allow_implicit_invocation: false
 ---
 
@@ -11,12 +11,56 @@ This skill controls process and guardrails; low-level proof search/repair still 
 
 ## Scope
 
-- Lean-only (`.lean`) and proof-oriented tasks.
-- Do not use VSCode UI assumptions; use `lean-lsp-mcp` as the Lean interaction entrypoint.
+- Lean-oriented MLTheory tasks (`.lean`) and task-card execution.
+- New-problem ingestion MUST use Intake v2 two-phase commit.
+- Do not use VSCode UI assumptions; use `lean-lsp-mcp` as Lean interaction entrypoint.
 - Keep theorem/lemma statements unchanged unless the user explicitly requests statement edits.
 - No custom `axiom`; no `sorry`; no Placeholder theorem/lemma in `Core/Methods`.
 
-## Fixed 6-Step Flow (MUST)
+## Intake v2 Two-Phase Contract (MUST for new problems)
+
+When task is a fresh problem (no existing `Spec.lean`/task card), run:
+
+1. Research Pack phase
+   - Create or verify:
+   - `Incubator/<Domain>/<Problem>/research/sources.md`
+   - `Incubator/<Domain>/<Problem>/research/glossary.yaml`
+   - `Incubator/<Domain>/<Problem>/research/outline.md`
+   - `Incubator/<Domain>/<Problem>/research/candidate_lemmas.md`
+   - `Incubator/<Domain>/<Problem>/research/gaps.md`
+   - Require source traceability for key claims; uncertain items must be marked.
+2. Lean Commit phase
+   - Run `python3 tools/intake/intake_v2.py lean-commit ...`.
+   - Confirm generated:
+   - `Spec.lean` (compilable, no sorry),
+   - `Cache.lean` (proved lemmas only, compilable),
+   - `Sketch.lean` (incubator-only decomposition file),
+   - `Tasks.yaml`, `Telemetry.jsonl`.
+   - Confirm metadata/artifact updates:
+   - `docs/meta/taxonomy.yaml`, `docs/meta/aliases.yaml`,
+   - refreshed `artifacts/index/*` and `artifacts/graphs/subgraph.json`.
+
+If task is not a new problem, skip Intake generation and execute the standard proof flow below.
+
+## Planner-Builder Batch Replan (MUST for stuck cards)
+
+Use fixed role split when progress stalls:
+
+1. Builder pass (Codex)
+   - Try local retrieval/tactics first and record failed attempts per card.
+2. Batch packaging
+   - Aggregate multiple blocked cards into `Incubator/<Domain>/<Problem>/stuck_batches/<batch_id>.yaml`.
+   - Include: goal, attempted tactics, blocker category, required missing lemmas/defs.
+3. Planner pass (GPTPro)
+   - Replan in batch (single call for multiple blocked cards).
+   - Return split suggestions (`split_into`), bridge lemmas, and definition fixes.
+4. Builder resume (Codex)
+   - Update `Sketch.lean` + `Tasks.yaml`, prove leaves, and move proved lemmas into `Cache.lean`.
+   - Re-run gates and refresh artifacts.
+
+Planner calls should be low-frequency and high-bandwidth; Builder loops should stay high-frequency and gate-driven.
+
+## Fixed 6-Step Proof Flow (MUST)
 
 1. Snapshot
    - Collect diagnostics, current goal, file outline, and declaration location before editing.
@@ -51,24 +95,14 @@ This skill controls process and guardrails; low-level proof search/repair still 
    - `artifacts/index/usage_suggestions.json`
    - `artifacts/graphs/subgraph.json`
    - `docs/_auto/GraphArtifacts.md`
-   - `docs/GraphExplorer.html` consumes refreshed subgraph data
-   - If `tools/index/gen_mathlib_slice.sh` exists, run it when task touches mathlib retrieval/import scope.
-   - If `tools/index/gen_decl_graph.sh` exists, run it when task changed declaration-level dependencies.
-   - After a successful task card, if `tools/index/record_usage.py` exists, append one telemetry event with key declarations used in the final patch.
+   - `docs/GraphExplorer.html` consumes refreshed subgraph data.
    - If scripts/artifacts do not exist yet, record `artifact_update = skipped(fallback)` and continue without fabricating files.
-
-## Artifact/Phase Mapping (Repo A alignment)
-
-- Phase 2: `docs/meta/*.yaml` + `modules/imports/module_graph`.
-- Phase 3: `mathlib_slice` + `mltheory_to_mathlib`.
-- Phase 4: `decl_graph` (`uses_type` / `uses_value`).
-- Phase 5/6 (optional): `usage_graph` + `subgraph` + GraphExplorer.
-
-Workflow should consume the highest available phase and degrade to lower phase/LSP-only mode when missing.
 
 ## Guardrails
 
 - Prefer existing mathlib lemmas over custom constructions.
 - Avoid `import Mathlib` in business modules unless working in an explicit compat/entry module.
 - Retrieval order is mandatory; do not jump directly to external search.
+- `Sketch.lean` may contain temporary decomposition only in `Incubator`; never move that state into `Core/Methods`.
+- `Cache.lean` stores proved lemmas only (no sorry) and should be reused before opening new subgoals.
 - If `lean-lsp-mcp` is unavailable, state degradation explicitly and run conservative `lake` + grep checks.

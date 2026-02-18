@@ -1,7 +1,7 @@
 interface:
   display_name: "ML Paper Workflow"
-  short_description: "Strict 6-step Lean construction wrapper over $lean4"
-  default_prompt: "Use $ml-paper-workflow to execute Snapshot -> Retrieval -> Screening -> Minimal Patch -> Gate -> Artifact update for this Lean task card, and delegate proof cycles to $lean4."
+  short_description: "Strict Intake v2 + Lean proof workflow with hard gates"
+  default_prompt: "Use $ml-paper-workflow to run Intake v2 two-phase commit for new problems (Research Pack -> Lean Commit), enforce Planner(GPTPro) batch replan + Builder(Codex) execution on stuck cards, then execute Snapshot -> Retrieval -> Screening -> Minimal Patch -> Gate -> Artifact update via $lean4."
 
 dependencies:
   tools:

@@ -1,6 +1,6 @@
 ---
 name: mltheory-retrieval
-description: "Goal-driven retrieval for MLTheory with mandatory order: local existence -> loogle -> external semantic search (optional)."
+description: "Domain-profile-first retrieval for MLTheory with progressive widening: domain-local -> domain-slice -> adjacent domains -> full library -> external semantic search."
 allow_implicit_invocation: false
 ---
 
@@ -14,42 +14,89 @@ This skill is retrieval-only; proof construction stays in `$lean4` or `$ml-paper
 - Lean files and goals in MLTheory.
 - Must use `lean-lsp-mcp` tools.
 - Must verify every emitted symbol exists locally.
+- Must honor MLTheory Domain Profile boundaries when available.
+
+## Domain Sources (MUST)
+
+Load and use these sources when present:
+
+- `docs/meta/domains.yaml`
+- `artifacts/graphs/subgraph.json` (`domains.profiles`, node `domains`)
+- `artifacts/index/mathlib_slice.json`
+
+Domain Profile fields to consume:
+
+- `allowed_local_roots`
+- `module_roots`
+- `default_imports`
+- `mathlib_slice_roots`
+- `bridge_modules`
+- `adjacent_domains`
+
+If domain cannot be inferred from the task/card, use `default_domain`; if still unresolved, use `all`.
 
 ## Fixed Retrieval Order (MUST)
 
-1. Local existence first
-   - Use `lean_local_search` and/or declaration-location checks.
-   - Discard symbols that cannot be resolved locally.
-2. Structural/type search second
-   - Use `lean_loogle` with goal-shape queries.
-3. External semantic search last (optional)
-   - Use `lean_leanfinder` / `lean_leansearch` only if steps 1-2 are insufficient.
+Progressive widening is mandatory. Do not skip stages unless required artifacts are missing.
+
+1. Domain-local MLTheory first
+   - Search current module + local declarations inside active domain `allowed_local_roots/module_roots`.
+   - Use `lean_local_search` and declaration-file checks.
+2. Domain mathlib slice second
+   - Search only `mathlib_slice_roots` (or slice modules tagged with active domain).
+   - Use `lean_loogle` constrained by slice/module context.
+3. Adjacent-domain widening third
+   - Expand only to `adjacent_domains` (+ declared `bridge_modules`).
+   - Keep search boundary local to those domains.
+4. Full MLTheory fourth
+   - Search all MLTheory modules if stages 1-3 are insufficient.
+5. Full mathlib fifth
+   - Search global mathlib only after local/domain passes are exhausted.
+6. External semantic retrieval last (optional)
+   - Use `lean_leanfinder` / `lean_leansearch` only when 1-5 are insufficient.
+
+## Existence Verification (MUST at every stage)
+
+For every candidate emitted at any stage:
+
+- Verify existence with `lean_local_search` and/or declaration-location checks.
+- Drop unresolved symbols immediately.
+- Record verification method per candidate.
+
+No unverified symbol may appear in output.
 
 ## Candidate Narrowing (MUST when artifacts exist)
 
 - If `artifacts/index/imports.json` and `artifacts/graphs/module_graph.json` exist:
   - Restrict first pass to current module and 1-2 hop import neighbors.
 - If `artifacts/graphs/decl_graph.json` exists:
-  - Restrict first pass to 1-2 hop neighbors of current declarations.
+  - Restrict first pass to 1-2 hop declaration neighbors.
 - If `artifacts/graphs/subgraph.json` exists:
-  - Prefer neighbors marked `spine=true`; use `used_recently` edge weight as tie-breaker.
-- If `artifacts/index/mathlib_slice.json` exists:
-  - Prefer symbols/modules inside slice before global mathlib expansion.
+  - Prefer nodes with `spine=true` and higher `used_recently` weight.
+  - Respect node `domains` before widening.
 - If `docs/meta/aliases.yaml` exists:
-  - Expand user keywords by aliases before local/loogle query construction.
+  - Expand user keywords by aliases before query construction.
 
-## Fallback (when artifacts are missing)
+## Fallback
 
-- Use LSP-only neighborhood:
+If domain artifacts are missing or incomplete:
+
+- Degrade to LSP-only neighborhood:
   - current module declarations,
   - imported modules from file outline,
-  - local + loogle search results.
-- Mark output as `artifact_mode = fallback`.
+  - local + loogle results,
+  - external semantic search last.
+- Mark output with `artifact_mode = fallback` and list missing files.
 
 ## Output Contract
 
 - Goal summary.
+- Domain context:
+  - `active_domain`,
+  - `widening_path` (stages used),
+  - whether bridge modules were used.
 - Candidate declarations with:
+  - `stage` (1-6),
   - existence proof method (`local_search`/`declaration_file`),
   - source module,
-  - why selected (type match / graph neighbor / slice hit).
+  - why selected (type match / graph neighbor / domain match / bridge).
