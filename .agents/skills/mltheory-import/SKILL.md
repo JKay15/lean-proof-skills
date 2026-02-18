@@ -1,6 +1,7 @@
 ---
 name: mltheory-import
 description: "Recommend minimal, verifiable imports for MLTheory tasks, prioritizing local modules and mathlib slice/aggregator hints."
+allow_implicit_invocation: false
 ---
 
 # MLTheory Import

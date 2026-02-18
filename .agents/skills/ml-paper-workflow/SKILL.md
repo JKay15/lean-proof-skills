@@ -1,6 +1,7 @@
 ---
 name: ml-paper-workflow
 description: "Strict construction wrapper for Lean paper task cards. Enforce Snapshot -> Retrieval -> Screening -> Minimal Patch -> Gate -> Artifact update using lean-lsp-mcp and $lean4."
+allow_implicit_invocation: false
 ---
 
 # ML Paper Workflow (Strict Wrapper)

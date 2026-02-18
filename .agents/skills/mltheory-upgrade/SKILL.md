@@ -1,6 +1,7 @@
 ---
 name: mltheory-upgrade
 description: "Structured mathlib upgrade workflow for MLTheory with pre/post index graph validation and rollback checkpoints."
+allow_implicit_invocation: false
 ---
 
 # MLTheory Upgrade

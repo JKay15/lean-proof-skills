@@ -1,6 +1,7 @@
 ---
 name: mltheory-retrieval
 description: "Goal-driven retrieval for MLTheory with mandatory order: local existence -> loogle -> external semantic search (optional)."
+allow_implicit_invocation: false
 ---
 
 # MLTheory Retrieval

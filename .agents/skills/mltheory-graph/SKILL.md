@@ -1,6 +1,7 @@
 ---
 name: mltheory-graph
 description: "Refresh MLTheory slice/graph artifacts and prepare neighborhood retrieval context with decl_graph-aware fallback."
+allow_implicit_invocation: false
 ---
 
 # MLTheory Graph

@@ -1,6 +1,7 @@
 ---
 name: mltheory-snapshot
 description: "Create a reproducible MLTheory Lean state snapshot (diagnostics/goal/outline/declaration locations) before patching."
+allow_implicit_invocation: false
 ---
 
 # MLTheory Snapshot

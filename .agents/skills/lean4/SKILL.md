@@ -1,6 +1,7 @@
 ---
 name: lean4
 description: "Use when editing .lean files, seeing type mismatch/sorry/failed to synthesize instance/axiom warnings, lake build errors, or searching mathlib for theorem proofs."
+allow_implicit_invocation: false
 ---
 
 # Lean 4 Theorem Proving
