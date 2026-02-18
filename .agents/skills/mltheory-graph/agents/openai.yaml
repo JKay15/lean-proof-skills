@@ -1,0 +1,13 @@
+interface:
+  display_name: "MLTheory Graph"
+  short_description: "Refresh slice/graph artifacts and prepare neighborhood retrieval context"
+  default_prompt: "Use $mltheory-graph to refresh MLTheory slice/graph artifacts and prepare context for neighborhood retrieval."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "lean-lsp-mcp"
+      description: "Lean LSP MCP server"
+
+policy:
+  allow_implicit_invocation: false

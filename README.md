@@ -32,6 +32,7 @@ This repository only owns:
 - `$mltheory-snapshot`: pre-edit state snapshot wrapper (diagnostics/goal/outline/declaration locations).
 - `$mltheory-retrieval`: goal-driven retrieval with strict `local -> loogle -> external(optional)` order.
 - `$mltheory-import`: minimal import recommendation with slice/aggregator-aware fallback.
+- `$mltheory-graph`: artifact refresh/context pack for slice + optional decl graph neighborhood mode.
 
 ## Required Layout in a Paper Repository
 
@@ -45,7 +46,8 @@ paper-foo/
 │       ├── ml-paper-workflow -> ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow
 │       ├── mltheory-snapshot -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-snapshot
 │       ├── mltheory-retrieval -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-retrieval
-│       └── mltheory-import -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import
+│       ├── mltheory-import -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import
+│       └── mltheory-graph -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-graph
 ├── .codex/
 │   └── config.toml                          # project-level Codex config
 └── lakefile.toml
@@ -73,6 +75,7 @@ ln -s ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow .agents/s
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-snapshot .agents/skills/mltheory-snapshot
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-retrieval .agents/skills/mltheory-retrieval
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import .agents/skills/mltheory-import
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-graph .agents/skills/mltheory-graph
 ```
 
 #### Windows PowerShell
@@ -84,6 +87,7 @@ New-Item -ItemType SymbolicLink -Path .agents/skills/ml-paper-workflow -Target .
 New-Item -ItemType SymbolicLink -Path .agents/skills/mltheory-snapshot -Target ../skillpacks/lean-proof-skills/.agents/skills/mltheory-snapshot
 New-Item -ItemType SymbolicLink -Path .agents/skills/mltheory-retrieval -Target ../skillpacks/lean-proof-skills/.agents/skills/mltheory-retrieval
 New-Item -ItemType SymbolicLink -Path .agents/skills/mltheory-import -Target ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import
+New-Item -ItemType SymbolicLink -Path .agents/skills/mltheory-graph -Target ../skillpacks/lean-proof-skills/.agents/skills/mltheory-graph
 ```
 
 Windows symlink creation usually requires Developer Mode enabled or elevated privileges.
@@ -97,6 +101,7 @@ ln -s ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow .agents/s
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-snapshot .agents/skills/mltheory-snapshot
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-retrieval .agents/skills/mltheory-retrieval
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import .agents/skills/mltheory-import
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-graph .agents/skills/mltheory-graph
 ```
 
 ### 3) Configure Codex at project scope
@@ -108,7 +113,7 @@ Put MCP settings (for example `lean-lsp-mcp`) there so configuration stays proje
 
 Start Codex from paper repo root and verify:
 
-- `/skills` lists `lean4`, `ml-paper-workflow`, `mltheory-snapshot`, `mltheory-retrieval`, and `mltheory-import`, or
+- `/skills` lists `lean4`, `ml-paper-workflow`, `mltheory-snapshot`, `mltheory-retrieval`, `mltheory-import`, and `mltheory-graph`, or
 - typing `$` shows those skill chips
 
 ## Upgrade and Rollback (paper repo side)
