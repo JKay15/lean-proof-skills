@@ -45,8 +45,15 @@ This skill controls process and guardrails; low-level proof search/repair still 
    - `artifacts/index/imports.json`
    - `artifacts/graphs/module_graph.json`
    - `docs/_auto/CodeIndex.md`
+   - If `tools/index/gen_graph_artifacts.sh` exists, run it to refresh:
+   - `artifacts/graphs/usage_graph.json`
+   - `artifacts/index/usage_suggestions.json`
+   - `artifacts/graphs/subgraph.json`
+   - `docs/_auto/GraphArtifacts.md`
+   - `docs/GraphExplorer.html` consumes refreshed subgraph data
    - If `tools/index/gen_mathlib_slice.sh` exists, run it when task touches mathlib retrieval/import scope.
    - If `tools/index/gen_decl_graph.sh` exists, run it when task changed declaration-level dependencies.
+   - After a successful task card, if `tools/index/record_usage.py` exists, append one telemetry event with key declarations used in the final patch.
    - If scripts/artifacts do not exist yet, record `artifact_update = skipped(fallback)` and continue without fabricating files.
 
 ## Artifact/Phase Mapping (Repo A alignment)
@@ -54,6 +61,7 @@ This skill controls process and guardrails; low-level proof search/repair still 
 - Phase 2: `docs/meta/*.yaml` + `modules/imports/module_graph`.
 - Phase 3: `mathlib_slice` + `mltheory_to_mathlib`.
 - Phase 4: `decl_graph` (`uses_type` / `uses_value`).
+- Phase 5/6 (optional): `usage_graph` + `subgraph` + GraphExplorer.
 
 Workflow should consume the highest available phase and degrade to lower phase/LSP-only mode when missing.
 

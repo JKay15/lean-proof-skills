@@ -35,6 +35,9 @@ It captures a stable baseline so later retrieval/patch/gate steps are auditable.
    - `artifacts/index/mathlib_slice.json`
    - `artifacts/index/mathlib_aggregators.json`
    - `artifacts/graphs/decl_graph.json`
+   - `artifacts/graphs/usage_graph.json`
+   - `artifacts/graphs/subgraph.json`
+   - `docs/GraphExplorer.html`
 6. Structured output
    - Report: file, goal, blockers, symbols with source module, artifact availability by phase (2/3/4), and fallback mode.
 

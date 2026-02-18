@@ -30,6 +30,8 @@ This skill is retrieval-only; proof construction stays in `$lean4` or `$ml-paper
   - Restrict first pass to current module and 1-2 hop import neighbors.
 - If `artifacts/graphs/decl_graph.json` exists:
   - Restrict first pass to 1-2 hop neighbors of current declarations.
+- If `artifacts/graphs/subgraph.json` exists:
+  - Prefer neighbors marked `spine=true`; use `used_recently` edge weight as tie-breaker.
 - If `artifacts/index/mathlib_slice.json` exists:
   - Prefer symbols/modules inside slice before global mathlib expansion.
 - If `docs/meta/aliases.yaml` exists:
