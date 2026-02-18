@@ -15,7 +15,7 @@ Instead, mount it into a paper project repository via:
 
 Use placeholder names until real repos are finalized:
 
-- `<ORG>/<LEAN-PROOF-SKILLS-REPO>`: reusable Codex skills (`$lean4`, `$ml-paper-workflow`)
+- `<ORG>/<LEAN-PROOF-SKILLS-REPO>`: reusable Codex skills (`$lean4`, `$ml-paper-workflow`, `$mltheory-*`)
 - `<ORG>/<MLTHEORY-LEAN-REPO>`: shared Lean theorem library for ML/OR domains
 - `<ORG>/<LEAN-PAPER-TEMPLATE-REPO>`: project template used to bootstrap each paper repo
 
@@ -29,6 +29,9 @@ This repository only owns:
 
 - `$lean4`: base proving engine; implicit invocation is allowed.
 - `$ml-paper-workflow`: orchestration wrapper; explicit invocation preferred.
+- `$mltheory-snapshot`: pre-edit state snapshot wrapper (diagnostics/goal/outline/declaration locations).
+- `$mltheory-retrieval`: goal-driven retrieval with strict `local -> loogle -> external(optional)` order.
+- `$mltheory-import`: minimal import recommendation with slice/aggregator-aware fallback.
 
 ## Required Layout in a Paper Repository
 
@@ -39,7 +42,10 @@ paper-foo/
 │   │   └── lean-proof-skills/              # git submodule
 │   └── skills/
 │       ├── lean4 -> ../skillpacks/lean-proof-skills/.agents/skills/lean4
-│       └── ml-paper-workflow -> ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow
+│       ├── ml-paper-workflow -> ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow
+│       ├── mltheory-snapshot -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-snapshot
+│       ├── mltheory-retrieval -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-retrieval
+│       └── mltheory-import -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import
 ├── .codex/
 │   └── config.toml                          # project-level Codex config
 └── lakefile.toml
@@ -64,6 +70,9 @@ git submodule update --init --recursive
 mkdir -p .agents/skills
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/lean4 .agents/skills/lean4
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow .agents/skills/ml-paper-workflow
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-snapshot .agents/skills/mltheory-snapshot
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-retrieval .agents/skills/mltheory-retrieval
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import .agents/skills/mltheory-import
 ```
 
 #### Windows PowerShell
@@ -72,6 +81,9 @@ ln -s ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow .agents/s
 New-Item -ItemType Directory -Force -Path .agents/skills | Out-Null
 New-Item -ItemType SymbolicLink -Path .agents/skills/lean4 -Target ../skillpacks/lean-proof-skills/.agents/skills/lean4
 New-Item -ItemType SymbolicLink -Path .agents/skills/ml-paper-workflow -Target ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow
+New-Item -ItemType SymbolicLink -Path .agents/skills/mltheory-snapshot -Target ../skillpacks/lean-proof-skills/.agents/skills/mltheory-snapshot
+New-Item -ItemType SymbolicLink -Path .agents/skills/mltheory-retrieval -Target ../skillpacks/lean-proof-skills/.agents/skills/mltheory-retrieval
+New-Item -ItemType SymbolicLink -Path .agents/skills/mltheory-import -Target ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import
 ```
 
 Windows symlink creation usually requires Developer Mode enabled or elevated privileges.
@@ -82,6 +94,9 @@ Windows symlink creation usually requires Developer Mode enabled or elevated pri
 mkdir -p .agents/skills
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/lean4 .agents/skills/lean4
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow .agents/skills/ml-paper-workflow
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-snapshot .agents/skills/mltheory-snapshot
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-retrieval .agents/skills/mltheory-retrieval
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import .agents/skills/mltheory-import
 ```
 
 ### 3) Configure Codex at project scope
@@ -93,7 +108,7 @@ Put MCP settings (for example `lean-lsp-mcp`) there so configuration stays proje
 
 Start Codex from paper repo root and verify:
 
-- `/skills` lists `lean4` and `ml-paper-workflow`, or
+- `/skills` lists `lean4`, `ml-paper-workflow`, `mltheory-snapshot`, `mltheory-retrieval`, and `mltheory-import`, or
 - typing `$` shows those skill chips
 
 ## Upgrade and Rollback (paper repo side)

@@ -1,0 +1,13 @@
+interface:
+  display_name: "MLTheory Import"
+  short_description: "Minimal import recommender with slice/aggregator-aware fallback"
+  default_prompt: "Use $mltheory-import to produce the minimal verified imports for this MLTheory declaration set."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "lean-lsp-mcp"
+      description: "Lean LSP MCP server"
+
+policy:
+  allow_implicit_invocation: false

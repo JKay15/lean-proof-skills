@@ -15,7 +15,7 @@
 
 在真实仓库名确认前，使用占位符：
 
-- `<ORG>/<LEAN-PROOF-SKILLS-REPO>`：可复用 Codex 技能（`$lean4`、`$ml-paper-workflow`）
+- `<ORG>/<LEAN-PROOF-SKILLS-REPO>`：可复用 Codex 技能（`$lean4`、`$ml-paper-workflow`、`$mltheory-*`）
 - `<ORG>/<MLTHEORY-LEAN-REPO>`：ML/OR 方向的共享 Lean 定理库
 - `<ORG>/<LEAN-PAPER-TEMPLATE-REPO>`：每篇论文项目的模板仓库
 
@@ -29,6 +29,9 @@
 
 - `$lean4`：底层 proving 引擎；允许隐式触发。
 - `$ml-paper-workflow`：论文任务卡编排层；优先显式调用。
+- `$mltheory-snapshot`：施工前状态快照（diagnostics/goal/outline/声明定位）。
+- `$mltheory-retrieval`：目标驱动检索，严格遵循 `本地 -> loogle -> 外部(可选)`。
+- `$mltheory-import`：最小 import 建议器，优先 slice/aggregator，缺失时自动降级。
 
 ## 论文仓库中的固定目录约定
 
@@ -39,7 +42,10 @@ paper-foo/
 │   │   └── lean-proof-skills/              # git submodule
 │   └── skills/
 │       ├── lean4 -> ../skillpacks/lean-proof-skills/.agents/skills/lean4
-│       └── ml-paper-workflow -> ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow
+│       ├── ml-paper-workflow -> ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow
+│       ├── mltheory-snapshot -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-snapshot
+│       ├── mltheory-retrieval -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-retrieval
+│       └── mltheory-import -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import
 ├── .codex/
 │   └── config.toml                          # 项目级 Codex 配置
 └── lakefile.toml
@@ -64,6 +70,9 @@ git submodule update --init --recursive
 mkdir -p .agents/skills
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/lean4 .agents/skills/lean4
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow .agents/skills/ml-paper-workflow
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-snapshot .agents/skills/mltheory-snapshot
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-retrieval .agents/skills/mltheory-retrieval
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import .agents/skills/mltheory-import
 ```
 
 #### Windows PowerShell
@@ -72,6 +81,9 @@ ln -s ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow .agents/s
 New-Item -ItemType Directory -Force -Path .agents/skills | Out-Null
 New-Item -ItemType SymbolicLink -Path .agents/skills/lean4 -Target ../skillpacks/lean-proof-skills/.agents/skills/lean4
 New-Item -ItemType SymbolicLink -Path .agents/skills/ml-paper-workflow -Target ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow
+New-Item -ItemType SymbolicLink -Path .agents/skills/mltheory-snapshot -Target ../skillpacks/lean-proof-skills/.agents/skills/mltheory-snapshot
+New-Item -ItemType SymbolicLink -Path .agents/skills/mltheory-retrieval -Target ../skillpacks/lean-proof-skills/.agents/skills/mltheory-retrieval
+New-Item -ItemType SymbolicLink -Path .agents/skills/mltheory-import -Target ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import
 ```
 
 Windows 创建符号链接通常需要开启开发者模式或使用管理员权限。
@@ -82,6 +94,9 @@ Windows 创建符号链接通常需要开启开发者模式或使用管理员权
 mkdir -p .agents/skills
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/lean4 .agents/skills/lean4
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow .agents/skills/ml-paper-workflow
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-snapshot .agents/skills/mltheory-snapshot
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-retrieval .agents/skills/mltheory-retrieval
+ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import .agents/skills/mltheory-import
 ```
 
 ### 3) 配置项目级 Codex
@@ -93,8 +108,8 @@ ln -s ../skillpacks/lean-proof-skills/.agents/skills/ml-paper-workflow .agents/s
 
 在论文仓库根目录启动 Codex，并验证：
 
-- `/skills` 里出现 `lean4` 与 `ml-paper-workflow`，或
-- 输入 `$` 时能看到这两个技能 chip
+- `/skills` 里出现 `lean4`、`ml-paper-workflow`、`mltheory-snapshot`、`mltheory-retrieval`、`mltheory-import`，或
+- 输入 `$` 时能看到这些技能 chip
 
 ## 升级与回滚（论文仓库侧）
 

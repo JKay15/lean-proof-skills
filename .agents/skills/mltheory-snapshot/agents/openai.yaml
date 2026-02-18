@@ -1,0 +1,13 @@
+interface:
+  display_name: "MLTheory Snapshot"
+  short_description: "Capture diagnostics/goal/outline/declaration baseline before edits"
+  default_prompt: "Use $mltheory-snapshot to collect a reproducible pre-edit snapshot for this MLTheory Lean task card."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "lean-lsp-mcp"
+      description: "Lean LSP MCP server"
+
+policy:
+  allow_implicit_invocation: false
