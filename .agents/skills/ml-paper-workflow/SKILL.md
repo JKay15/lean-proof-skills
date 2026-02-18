@@ -1,38 +1,51 @@
 ---
 name: ml-paper-workflow
-description: "Use when formalizing mathematics in Lean from paper blueprints or task cards, especially measure theory, probability, statistics, optimization, and information theory. Coordinate Lean LSP MCP inspection, mathlib search, minimal patches, and lake build verification. Do not use for non-Lean files or non-proof tasks."
+description: "Strict construction wrapper for Lean paper task cards. Enforce Snapshot -> Retrieval -> Screening -> Minimal Patch -> Gate -> Artifact update using lean-lsp-mcp and $lean4."
 ---
 
-# ML Paper Workflow
+# ML Paper Workflow (Strict Wrapper)
 
-Use this skill as a thin workflow wrapper over `$lean4`.
-Delegate formal proving and repair cycles to `$lean4` instead of re-implementing low-level proving logic here.
+Use this skill as a strict construction wrapper over `$lean4`.
+This skill controls process and guardrails; low-level proof search/repair still delegates to `$lean4`.
 
 ## Scope
 
-- Work only on `.lean` files and proof-oriented tasks.
-- Refuse or hand back non-Lean or non-proof work.
-- Keep theorem and lemma statements unchanged unless the user explicitly requests changes.
+- Lean-only (`.lean`) and proof-oriented tasks.
+- Do not use VSCode UI assumptions; use `lean-lsp-mcp` as the Lean interaction entrypoint.
+- Keep theorem/lemma statements unchanged unless the user explicitly requests statement edits.
+- No custom `axiom`; no `sorry`; no Placeholder theorem/lemma in `Core/Methods`.
 
-## Workflow
+## Fixed 6-Step Flow (MUST)
 
-1. Translate the user request into a paper blueprint or task card:
-   - target theorem or lemma name,
-   - expected mathematical claim,
-   - file path and scope,
-   - acceptance gate (`lake build`, no unauthorized axioms).
-2. Use Lean LSP MCP to inspect goals and diagnostics, then search mathlib before writing tactics.
-3. Produce the smallest patch that advances only the active task card.
-4. Delegate the formal cycle to `$lean4`:
-   - Plan -> Work -> Checkpoint -> Review -> Replan
-5. Validate with `lake build` (or file-level gate first), then report:
-   - what changed,
-   - unresolved blockers,
-   - the next task card.
+1. Snapshot
+   - Collect diagnostics, current goal, file outline, and declaration location before editing.
+   - Minimum calls: `lean_diagnostic_messages`, `lean_goal`, `lean_file_outline`, and declaration location (`lean_declaration_file`/local equivalent).
+2. Retrieval
+   - Enforce search order:
+   - `local existence check first` (`lean_local_search` or declaration location check).
+   - `structure/type search next` (`lean_loogle`).
+   - `external semantic search last and optional` (`lean_leanfinder` / `lean_leansearch` only when needed).
+   - Any symbol written into code must be existence-verified in step 1/2.
+3. Screening
+   - If tactic direction is uncertain, run parallel tactic screening with `lean_multi_attempt`.
+   - Screening must not mutate source files.
+4. Minimal Patch
+   - Apply the smallest patch that advances only the active task card.
+   - Avoid broad refactors or unrelated import rewrites.
+5. Gate
+   - Run repository gates before claiming success:
+   - `lake build`
+   - `lake env lean Eval/ImportSmoke.lean`
+   - `lake env lean Eval/CanonicalAPISmoke.lean`
+   - `tools/ci/check_no_sorry_axiom.sh`
+   - `tools/ci/check_placeholder_policy.sh`
+6. Artifact Update
+   - If repository phase already provides `artifacts/index` or `artifacts/graphs` (for example slice/decl_graph), update the relevant artifacts/index in the same task.
+   - If those artifacts do not exist yet, record "artifact update skipped (fallback)" and continue without fabricating files.
 
 ## Guardrails
 
 - Prefer existing mathlib lemmas over custom constructions.
-- Avoid broad refactors outside the active proof scope.
-- Do not introduce custom axioms without explicit permission.
-- If Lean LSP MCP is unavailable, state the limitation and continue conservatively with `lake`-based checks.
+- Avoid `import Mathlib` in business modules unless working in an explicit compat/entry module.
+- Retrieval order is mandatory; do not jump directly to external search.
+- If `lean-lsp-mcp` is unavailable, state degradation explicitly and run conservative `lake` + grep checks.

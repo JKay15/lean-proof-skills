@@ -1,7 +1,7 @@
 interface:
   display_name: "ML Paper Workflow"
-  short_description: "Lean paper-to-proof workflow wrapper over $lean4"
-  default_prompt: "Use $ml-paper-workflow to formalize this paper task card in Lean and delegate proof cycles to $lean4."
+  short_description: "Strict 6-step Lean construction wrapper over $lean4"
+  default_prompt: "Use $ml-paper-workflow to execute Snapshot -> Retrieval -> Screening -> Minimal Patch -> Gate -> Artifact update for this Lean task card, and delegate proof cycles to $lean4."
 
 dependencies:
   tools:
