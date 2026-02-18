@@ -26,10 +26,14 @@ This skill is retrieval-only; proof construction stays in `$lean4` or `$ml-paper
 
 ## Candidate Narrowing (MUST when artifacts exist)
 
+- If `artifacts/index/imports.json` and `artifacts/graphs/module_graph.json` exist:
+  - Restrict first pass to current module and 1-2 hop import neighbors.
 - If `artifacts/graphs/decl_graph.json` exists:
   - Restrict first pass to 1-2 hop neighbors of current declarations.
 - If `artifacts/index/mathlib_slice.json` exists:
   - Prefer symbols/modules inside slice before global mathlib expansion.
+- If `docs/meta/aliases.yaml` exists:
+  - Expand user keywords by aliases before local/loogle query construction.
 
 ## Fallback (when artifacts are missing)
 

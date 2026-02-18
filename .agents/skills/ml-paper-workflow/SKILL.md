@@ -40,8 +40,22 @@ This skill controls process and guardrails; low-level proof search/repair still 
    - `tools/ci/check_no_sorry_axiom.sh`
    - `tools/ci/check_placeholder_policy.sh`
 6. Artifact Update
-   - If repository phase already provides `artifacts/index` or `artifacts/graphs` (for example slice/decl_graph), update the relevant artifacts/index in the same task.
-   - If those artifacts do not exist yet, record "artifact update skipped (fallback)" and continue without fabricating files.
+   - If `tools/index/gen_mltheory_index.sh` exists, run it to refresh:
+   - `artifacts/index/modules.json`
+   - `artifacts/index/imports.json`
+   - `artifacts/graphs/module_graph.json`
+   - `docs/_auto/CodeIndex.md`
+   - If `tools/index/gen_mathlib_slice.sh` exists, run it when task touches mathlib retrieval/import scope.
+   - If `tools/index/gen_decl_graph.sh` exists, run it when task changed declaration-level dependencies.
+   - If scripts/artifacts do not exist yet, record `artifact_update = skipped(fallback)` and continue without fabricating files.
+
+## Artifact/Phase Mapping (Repo A alignment)
+
+- Phase 2: `docs/meta/*.yaml` + `modules/imports/module_graph`.
+- Phase 3: `mathlib_slice` + `mltheory_to_mathlib`.
+- Phase 4: `decl_graph` (`uses_type` / `uses_value`).
+
+Workflow should consume the highest available phase and degrade to lower phase/LSP-only mode when missing.
 
 ## Guardrails
 

@@ -26,11 +26,17 @@ It captures a stable baseline so later retrieval/patch/gate steps are auditable.
    - For task-card symbols, resolve declaration files (`lean_declaration_file` or local equivalent).
 5. Artifact presence probe
    - Check whether these artifacts exist:
+   - `docs/meta/taxonomy.yaml`
+   - `docs/meta/aliases.yaml`
+   - `docs/meta/canon.yaml`
+   - `artifacts/index/modules.json`
+   - `artifacts/index/imports.json`
+   - `artifacts/graphs/module_graph.json`
    - `artifacts/index/mathlib_slice.json`
    - `artifacts/index/mathlib_aggregators.json`
    - `artifacts/graphs/decl_graph.json`
 6. Structured output
-   - Report: file, goal, blockers, symbols with source module, artifact availability, and fallback mode.
+   - Report: file, goal, blockers, symbols with source module, artifact availability by phase (2/3/4), and fallback mode.
 
 ## Fallback
 

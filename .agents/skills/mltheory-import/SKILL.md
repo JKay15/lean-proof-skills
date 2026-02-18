@@ -17,6 +17,7 @@ Use this skill to propose minimal imports for declarations selected by retrieval
 
 1. Prefer MLTheory modules first
    - Prefer canonical/bridge module paths that already expose the declaration.
+   - Use `artifacts/index/imports.json` / `artifacts/graphs/module_graph.json` to choose nearest existing module-level import path.
 2. For Mathlib symbols
    - Prefer slice-limited modules when `artifacts/index/mathlib_slice.json` exists.
    - Prefer aggregator modules from `artifacts/index/mathlib_aggregators.json` when valid.
@@ -32,7 +33,7 @@ Use this skill to propose minimal imports for declarations selected by retrieval
 
 ## Fallback
 
-- If slice/aggregator artifacts are absent:
+- If `imports/module_graph` or `slice/aggregator` artifacts are absent:
   - use declaration-owning module imports only,
   - keep recommendations conservative and explicit.
 
