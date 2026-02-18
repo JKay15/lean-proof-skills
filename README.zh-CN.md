@@ -1,40 +1,40 @@
 # lean-proof-skills
 
-语言: [English](README.md) | **中文**
+language: [English](README.md) | **Chinese**
 
-## 在三仓框架中的定位
+## Positioning in the Three Cang Framework
 
-本仓库是 Lean + Codex 数学证明体系里的上游 **skillpack** 仓库。
-不要把它当作论文本体工作区直接做证明。
-正确方式是把它装配进论文仓库：
+This warehouse is Lean + Codex Upstream in the mathematical proof system **skillpack** storehouse.
+Don’t use it as a thesis ontology workspace to do proofs directly..
+The correct way is to assemble it into the paper warehouse:
 
-- 作为 submodule 挂到 `.agents/skillpacks/lean-proof-skills`
-- 在 `.agents/skills/` 放 facade symlink 暴露技能入口
+- as submodule hang on `.agents/skillpacks/lean-proof-skills`
+- exist `.agents/skills/` put facade symlink Expose skill entrance
 
-## 三个仓库的角色与接口
+## The roles and interfaces of the three warehouses
 
-在真实仓库名确认前，使用占位符：
+Before confirming the real warehouse name,Use placeholders:
 
-- `<ORG>/<LEAN-PROOF-SKILLS-REPO>`：可复用 Codex 技能（`$lean4`、`$ml-paper-workflow`、`$mltheory-*`）
-- `<ORG>/<MLTHEORY-LEAN-REPO>`：ML/OR 方向的共享 Lean 定理库
-- `<ORG>/<LEAN-PAPER-TEMPLATE-REPO>`：每篇论文项目的模板仓库
+- `<ORG>/<LEAN-PROOF-SKILLS-REPO>`:Reusable Codex Skill(`$lean4`,`$ml-paper-workflow`,`$mltheory-*`)
+- `<ORG>/<MLTHEORY-LEAN-REPO>`:ML/OR Sharing of directions Lean Theorem library
+- `<ORG>/<LEAN-PAPER-TEMPLATE-REPO>`:Template repository for each paper project
 
-本仓库只负责：
+This warehouse is only responsible for:
 
-- 提供可复用 skills
-- 暴露 skill IDs 与调用契约
-- 维护论文仓库侧的集成说明
+- Provide reusable skills
+- exposed skill IDs and call contract
+- Integration instructions for maintaining the paper repository side
 
-## Skill ID 与调用契约
+## Skill ID and call contract
 
-- `$lean4`：底层 proving 引擎；允许隐式触发。
-- `$ml-paper-workflow`：论文任务卡编排层；优先显式调用。
-- `$mltheory-snapshot`：施工前状态快照（diagnostics/goal/outline/声明定位）。
-- `$mltheory-retrieval`：目标驱动检索，严格遵循 `本地 -> loogle -> 外部(可选)`。
-- `$mltheory-import`：最小 import 建议器，优先 slice/aggregator，缺失时自动降级。
-- `$mltheory-graph`：刷新 slice/graph 产物并生成邻域检索上下文（`decl_graph` 缺失时自动降级）。
+- `$lean4`:Ground floor proving engine;Allow implicit triggering.
+- `$ml-paper-workflow`:Thesis task card arrangement layer;Prioritize explicit calls.
+- `$mltheory-snapshot`:Pre-construction status snapshot(diagnostics/goal/outline/Declare positioning).
+- `$mltheory-retrieval`:goal-driven retrieval,strictly follow `local -> loogle -> external(Optional)`.
+- `$mltheory-import`:smallest import suggester,priority slice/aggregator,Automatically downgrade when missing.
+- `$mltheory-graph`:refresh slice/graph product and generate neighborhood search context(`decl_graph` Automatically downgrade when missing).
 
-## 论文仓库中的固定目录约定
+## Fixed directory conventions in thesis repository
 
 ```text
 paper-foo/
@@ -49,22 +49,22 @@ paper-foo/
 │       ├── mltheory-import -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import
 │       └── mltheory-graph -> ../skillpacks/lean-proof-skills/.agents/skills/mltheory-graph
 ├── .codex/
-│   └── config.toml                          # 项目级 Codex 配置
+│   └── config.toml                          # project level Codex Configuration
 └── lakefile.toml
 ```
 
-Codex 会扫描 repo scope 的 `.agents/skills` 并跟随 symlink，因此 facade 目录是实际接入入口。
+Codex Will scan repo scope of `.agents/skills` and follow symlink,therefore facade The directory is the actual access entrance.
 
-## 装配步骤（在论文仓库执行）
+## Assembly steps(Executed in the paper repository)
 
-### 1) 添加本仓库作为 submodule
+### 1) Add this repository as submodule
 
 ```bash
 git submodule add https://github.com/<ORG>/<LEAN-PROOF-SKILLS-REPO>.git .agents/skillpacks/lean-proof-skills
 git submodule update --init --recursive
 ```
 
-### 2) 在 `.agents/skills` 创建 facade 链接
+### 2) exist `.agents/skills` create facade Link
 
 #### macOS / Linux
 
@@ -90,7 +90,7 @@ New-Item -ItemType SymbolicLink -Path .agents/skills/mltheory-import -Target ../
 New-Item -ItemType SymbolicLink -Path .agents/skills/mltheory-graph -Target ../skillpacks/lean-proof-skills/.agents/skills/mltheory-graph
 ```
 
-Windows 创建符号链接通常需要开启开发者模式或使用管理员权限。
+Windows Creating symbolic links usually requires turning on developer mode or using administrator privileges.
 
 #### Git Bash (Windows)
 
@@ -104,21 +104,21 @@ ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-import .agents/ski
 ln -s ../skillpacks/lean-proof-skills/.agents/skills/mltheory-graph .agents/skills/mltheory-graph
 ```
 
-### 3) 配置项目级 Codex
+### 3) Configure project level Codex
 
-`.codex/config.toml` 应放在**论文仓库**中，而不是本 skillpack 仓库。
-例如 MCP（`lean-lsp-mcp`）配置应写在论文仓库的 `.codex/config.toml`，保持项目隔离。
+`.codex/config.toml` should be placed**Paper warehouse**middle,instead of Ben skillpack storehouse.
+For example MCP(`lean-lsp-mcp`)The configuration should be written in the paper repository `.codex/config.toml`,Keep projects isolated.
 
-### 4) 验证技能可见性
+### 4) Verify skill visibility
 
-在论文仓库根目录启动 Codex，并验证：
+Start in the root directory of the paper repository Codex,and verify:
 
-- `/skills` 里出现 `lean4`、`ml-paper-workflow`、`mltheory-snapshot`、`mltheory-retrieval`、`mltheory-import`、`mltheory-graph`，或
-- 输入 `$` 时能看到这些技能 chip
+- `/skills` appear in `lean4`,`ml-paper-workflow`,`mltheory-snapshot`,`mltheory-retrieval`,`mltheory-import`,`mltheory-graph`,or
+- enter `$` These skills can be seen when chip
 
-## 升级与回滚（论文仓库侧）
+## Upgrades and rollbacks(Thesis warehouse side)
 
-### 升级到新的 skillpack 提交或 tag
+### upgrade to new skillpack submit or tag
 
 ```bash
 git submodule update --init --recursive
@@ -130,15 +130,15 @@ git add .agents/skillpacks/lean-proof-skills
 git commit -m "chore: bump lean-proof-skills submodule"
 ```
 
-### 回滚到旧的 submodule 指针
+### rollback to old submodule pointer
 
 ```bash
 git checkout <older-paper-repo-commit> -- .agents/skillpacks/lean-proof-skills
 git commit -m "chore: rollback lean-proof-skills submodule"
 ```
 
-## 边界
+## boundary
 
-- 本仓库是 skillpack 上游仓库，不是论文本体证明仓库。
-- skills 通过论文仓库的 repo scope 暴露，不依赖全局技能目录。
-- 最终证明质量仍以 Lean 构建门禁为准（`lake build`、范围约束、禁止未授权公理）。
+- This warehouse is skillpack upstream warehouse,Not a paper ontology proof warehouse.
+- skills Through thesis repository repo scope exposed,Does not rely on global skill catalog.
+- The final proof is that the quality is still Lean Construction of access control shall prevail(`lake build`,scope constraints,No unauthorized axiom).

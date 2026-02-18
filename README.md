@@ -1,6 +1,6 @@
 # lean-proof-skills
 
-Language: **English** | [中文](README.zh-CN.md)
+Language: **English** | [Chinese](README.zh-CN.md)
 
 ## Position in the 3-Repo Framework
 
