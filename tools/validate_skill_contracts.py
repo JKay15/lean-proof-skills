@@ -42,6 +42,7 @@ def validate_retrieval_skill(errors: list[str]) -> None:
     label = str(path.relative_to(ROOT))
 
     require_contains(text, "## Domain Sources (MUST)", label=label, errors=errors)
+    require_contains(text, "tools/retrieval/query.py", label=label, errors=errors)
     for field in (
         "allowed_local_roots",
         "module_roots",
@@ -81,6 +82,11 @@ def validate_workflow_skill(errors: list[str]) -> None:
     require_contains(text, "Cache.lean", label=label, errors=errors)
     require_contains(text, "Sketch.lean", label=label, errors=errors)
     require_contains(text, "Tasks.yaml", label=label, errors=errors)
+    require_contains(text, "Problems/<Suite>/<ProblemName>/", label=label, errors=errors)
+    require_contains(text, "ProofMap.json", label=label, errors=errors)
+    require_contains(text, "tools/intake/sync_problem_workspace.py", label=label, errors=errors)
+    require_contains(text, "tools/index/gen_proof_map.py", label=label, errors=errors)
+    require_contains(text, "tools/ci/check_problem_workspace_contract.py", label=label, errors=errors)
 
     require_contains(text, "## Planner-Builder Batch Replan (MUST for stuck cards)", label=label, errors=errors)
     require_contains(text, "split_into", label=label, errors=errors)
@@ -94,6 +100,7 @@ def validate_workflow_skill(errors: list[str]) -> None:
         "tools/ci/check_placeholder_policy.sh",
     ):
         require_contains(text, gate, label=label, errors=errors)
+    require_contains(text, "tools/retrieval/query.py", label=label, errors=errors)
 
 
 def main() -> int:

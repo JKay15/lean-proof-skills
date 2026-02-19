@@ -42,6 +42,25 @@ When task is a fresh problem (no existing `Spec.lean`/task card), run:
 
 If task is not a new problem, skip Intake generation and execute the standard proof flow below.
 
+## Problem Workspace Contract (MUST)
+
+For every active problem, maintain:
+
+- `Problems/<Suite>/<ProblemName>/Spec.lean`
+- `Problems/<Suite>/<ProblemName>/Sketch.lean` (optional)
+- `Problems/<Suite>/<ProblemName>/Cache.lean`
+- `Problems/<Suite>/<ProblemName>/Proof.lean`
+- `Problems/<Suite>/<ProblemName>/Tasks.yaml`
+- `Problems/<Suite>/<ProblemName>/Sources.md`
+- `Problems/<Suite>/<ProblemName>/Glossary.yaml`
+- `Problems/<Suite>/<ProblemName>/ProofMap.json` (generated)
+
+Rules:
+
+- `Spec.lean` and `Cache.lean` must stay `sorry`-free.
+- `Proof.lean` should read as final, human-inspectable proof skeleton.
+- `Sketch.lean` is optional and must never be imported by Core/Methods.
+
 ## Planner-Builder Batch Replan (MUST for stuck cards)
 
 Use fixed role split when progress stalls:
@@ -66,11 +85,11 @@ Planner calls should be low-frequency and high-bandwidth; Builder loops should s
    - Collect diagnostics, current goal, file outline, and declaration location before editing.
    - Minimum calls: `lean_diagnostic_messages`, `lean_goal`, `lean_file_outline`, and declaration location (`lean_declaration_file`/local equivalent).
 2. Retrieval
-   - Enforce search order:
-   - `local existence check first` (`lean_local_search` or declaration location check).
-   - `structure/type search next` (`lean_loogle`).
-   - `external semantic search last and optional` (`lean_leanfinder` / `lean_leansearch` only when needed).
-   - Any symbol written into code must be existence-verified in step 1/2.
+   - Enforce unified retrieval entry:
+   - call `MLTheory/tools/retrieval/query.py` with `--query/--goal/--domain/--context-module/--task`.
+   - wrapper widening order is mandatory:
+   - `domain local -> domain slice -> adjacent domains -> full MLTheory -> full mathlib -> external(optional)`.
+   - any symbol written into code must come from verified wrapper candidates (`verify_method` present).
 3. Screening
    - If tactic direction is uncertain, run parallel tactic screening with `lean_multi_attempt`.
    - Screening must not mutate source files.
@@ -85,6 +104,8 @@ Planner calls should be low-frequency and high-bandwidth; Builder loops should s
    - `tools/ci/check_no_sorry_axiom.sh`
    - `tools/ci/check_placeholder_policy.sh`
 6. Artifact Update
+   - Sync Incubator output into Problem Workspace:
+   - `python3 tools/intake/sync_problem_workspace.py --domain <domain> --problem <problem>`
    - If `tools/index/gen_mltheory_index.sh` exists, run it to refresh:
    - `artifacts/index/modules.json`
    - `artifacts/index/imports.json`
@@ -97,6 +118,11 @@ Planner calls should be low-frequency and high-bandwidth; Builder loops should s
    - `docs/_auto/GraphArtifacts.md`
    - `docs/GraphExplorer.html` consumes refreshed subgraph data.
    - If scripts/artifacts do not exist yet, record `artifact_update = skipped(fallback)` and continue without fabricating files.
+   - Generate/update problem proof map:
+   - `python3 tools/index/gen_proof_map.py`
+   - Validate workspace contract:
+   - `python3 tools/ci/check_problem_workspace_contract.py`
+   - Ensure each proof iteration appends retrieval telemetry via `tools/retrieval/query.py`.
 
 ## Guardrails
 

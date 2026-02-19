@@ -12,7 +12,7 @@ This skill is retrieval-only; proof construction stays in `$lean4` or `$ml-paper
 ## Scope
 
 - Lean files and goals in MLTheory.
-- Must use `lean-lsp-mcp` tools.
+- Must call MLTheory unified retrieval entrypoint: `tools/retrieval/query.py`.
 - Must verify every emitted symbol exists locally.
 - Must honor MLTheory Domain Profile boundaries when available.
 
@@ -35,6 +35,26 @@ Domain Profile fields to consume:
 
 If domain cannot be inferred from the task/card, use `default_domain`; if still unresolved, use `all`.
 
+## Executable Entry (MUST)
+
+Do not directly call ad-hoc MCP search tools here. Call the wrapper:
+
+```bash
+python3 /path/to/MLTheory/tools/retrieval/query.py \
+  --query "<goal or keyword>" \
+  --goal "<goal summary>" \
+  --domain "<active_domain>" \
+  --context-module "<current module>" \
+  --task "<task card id>" \
+  --emit-limit 30
+```
+
+Wrapper backend order is fixed and auditable:
+- local confirm (decl index + local Lean check)
+- local `rg` search
+- Loogle JSON
+- LeanExplore (optional, endpoint-driven)
+
 ## Fixed Retrieval Order (MUST)
 
 Progressive widening is mandatory. Do not skip stages unless required artifacts are missing.
@@ -53,13 +73,13 @@ Progressive widening is mandatory. Do not skip stages unless required artifacts 
 5. Full mathlib fifth
    - Search global mathlib only after local/domain passes are exhausted.
 6. External semantic retrieval last (optional)
-   - Use `lean_leanfinder` / `lean_leansearch` only when 1-5 are insufficient.
+   - Keep this inside `query.py` external backend only when 1-5 are insufficient.
 
 ## Existence Verification (MUST at every stage)
 
 For every candidate emitted at any stage:
 
-- Verify existence with `lean_local_search` and/or declaration-location checks.
+- Verify existence via wrapper verification (`decl_index` and/or local Lean `#check`).
 - Drop unresolved symbols immediately.
 - Record verification method per candidate.
 
@@ -76,6 +96,7 @@ No unverified symbol may appear in output.
   - Respect node `domains` before widening.
 - If `docs/meta/aliases.yaml` exists:
   - Expand user keywords by aliases before query construction.
+- Always keep telemetry enabled (`artifacts/telemetry/retrieval.jsonl` + usage events for final hits).
 
 ## Fallback
 
