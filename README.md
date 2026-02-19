@@ -142,3 +142,16 @@ git commit -m "chore: rollback lean-proof-skills submodule"
 - This repo is a skillpack upstream, not a proof project workspace.
 - Keep skills repo-local in each paper repository; avoid global skill pollution.
 - Keep proving output gated by Lean checks (`lake build`, agreed scope, no unauthorized axioms).
+
+## Skill Contract Check
+
+Run the contract validator before release:
+
+```bash
+python3 tools/validate_skill_contracts.py
+```
+
+This check enforces:
+
+- Domain-profile progressive widening order in `$mltheory-retrieval`
+- Two-phase Intake + Planner/Builder clauses in `$ml-paper-workflow`

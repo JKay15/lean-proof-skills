@@ -142,3 +142,16 @@ git commit -m "chore: rollback lean-proof-skills submodule"
 - This warehouse is skillpack upstream warehouse,Not a paper ontology proof warehouse.
 - skills Through thesis repository repo scope exposed,Does not rely on global skill catalog.
 - The final proof is that the quality is still Lean Construction of access control shall prevail(`lake build`,scope constraints,No unauthorized axiom).
+
+## Skill Contract check
+
+Before releasing, execute:
+
+```bash
+python3 tools/validate_skill_contracts.py
+```
+
+This check will enforce:
+
+- `$mltheory-retrieval` whether to retain domain profile Progressive widening order
+- `$ml-paper-workflow` whether to retain Intake Two-stage submission + Planner/Builder Stuck batch clause

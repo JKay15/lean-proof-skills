@@ -1,0 +1,16 @@
+name: Skill Contract CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  skill_contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Validate skill contracts
+        run: python3 tools/validate_skill_contracts.py
